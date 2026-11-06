@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecom ROAS &amp; Break-Even Simulator — Free, Private &amp; Client-Side</title>
+    <meta
+      name="description"
+      content="Calculate ecommerce break-even ROAS, net margins, and simulate ad spend profitability instantly in your browser. 100% private with zero data uploads."
+    />
+    <meta name="keywords" content="roas calculator, ecommerce break even roas, facebook ads roas calculator, target roas simulator, net margin calculator, cpa calculator" />
+    <meta name="author" content="GreenTools" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- OpenGraph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ecom ROAS &amp; Break-Even Simulator — Free &amp; Private" />
+    <meta
+      property="og:description"
+      content="Simulate break-even ROAS, target CPA, and net profit margins instantly. 100% client-side in your browser."
+    />
+    <meta property="og:site_name" content="GreenTools" />
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN & Lucide Icons CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Structured JSON-LD Schema: WebApplication & FAQPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "Ecom ROAS & Break-Even Simulator",
+            "operatingSystem": "All",
+            "applicationCategory": "BusinessApplication",
+            "browserRequirements": "Requires JavaScript and modern HTML5 browser support.",
+            "description": "Calculate ecommerce break-even ROAS, maximum acquisition cost (CPA), and net profit margin in real-time.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Instant break-even ROAS computation",
+              "Payment gateway fee deductions (Stripe/Shopify % + flat)",
+              "Interactive Target ROAS slider with live profit/loss status",
+              "Batch campaign scale projection (orders, revenue, ad budget)",
+              "One-click Copy Financial Breakdown & CSV export",
+              "100% Private local in-browser calculation"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is Break-Even ROAS and how is it calculated?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Break-Even ROAS is the Return On Ad Spend required for your store to make exactly $0 profit. It is calculated by dividing your Product Sale Price by your Contribution Margin (Sale Price minus COGS, Shipping, and Gateway Fees). Any ad campaign performing above this number is generating pure profit."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Why are payment gateway fees included in ROAS calculation?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Standard payment processors like Stripe and Shopify Payments charge approximately 2.9% plus $0.30 per transaction. Ignoring these fees leads to inaccurate break-even calculations and hidden ad budget losses on low-ticket or high-volume stores."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are my store figures or financial data uploaded to any server?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. All calculations run strictly in your web browser memory using client-side JavaScript. No data is ever transmitted to servers, analytics platforms, or external databases."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I use this offline?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Once loaded, this tool operates completely offline without an active internet connection."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      :root {
+        --grid-line: rgba(15, 23, 42, 0.04);
+      }
+      .bg-subtle-grid {
+        background-size: 24px 24px;
+        background-image:
+          linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      }
+      .tabular-nums {
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white bg-subtle-grid flex flex-col justify-between">
+    <!-- Header -->
+    <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-[1280px] mx-auto flex items-center justify-between gap-6 px-4 sm:px-6 py-3.5">
+        <a href="#app" class="flex items-center gap-2.5 text-base font-bold tracking-tight text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded">
+          <div class="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+          </div>
+          <span>GreenTools <span class="text-xs font-normal text-slate-400">/ ROAS Simulator</span></span>
+        </a>
+
+        <nav aria-label="Quick links" class="hidden sm:flex items-center gap-6 text-xs sm:text-sm font-medium text-slate-600">
+          <a href="#how-to-use" class="hover:text-slate-900 transition-colors">How It Works</a>
+          <a href="#privacy" class="hover:text-slate-900 transition-colors">Privacy</a>
+          <a href="#faq" class="hover:text-slate-900 transition-colors">FAQ</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <button
+            id="btn-sample-preset"
+            type="button"
+            class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap"
+          >
+            Load Sample Store
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main id="app" class="max-w-[1280px] mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex-1">
+      
+      <!-- Initial Hero & Form Card -->
+      <section id="input-card-section" class="max-w-3xl mx-auto">
+        <!-- Privacy Badge -->
+        <div class="text-center mb-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 rounded-full">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 shrink-0"></i>
+            <span>100% Private · Zero cloud uploads · Instant calculation</span>
+          </div>
+        </div>
+
+        <div class="text-center mb-8">
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+            Ecom ROAS &amp; Break-Even Simulator
+          </h1>
+          <p class="mt-2 text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
+            Input your product costs and payment fees to instantly determine your break-even ad spend, maximum CPA, and net profit margins.
+          </p>
+        </div>
+
+        <!-- Inputs Grid Box -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4 text-emerald-600"></i>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Unit Economics &amp; Costs</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">Presets:</span>
+              <button type="button" class="preset-pill px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium" data-price="49.99" data-cogs="12.50" data-ship="4.00" data-fee="2.9" data-flat="0.30">Apparel ($50)</button>
+              <button type="button" class="preset-pill px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium" data-price="120.00" data-cogs="35.00" data-ship="9.50" data-fee="2.9" data-flat="0.30">Gadget ($120)</button>
+            </div>
+          </div>
+
+          <form id="calc-form" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Sale Price -->
+              <div>
+                <label for="input-price" class="block text-xs font-semibold text-slate-700 mb-1.5">Product Retail Price ($)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">$</span>
+                  <input
+                    id="input-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="49.99"
+                    value="49.99"
+                    class="w-full pl-7 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <span class="text-[11px] text-slate-400 mt-1 block">Customer checkout price</span>
+              </div>
+
+              <!-- COGS -->
+              <div>
+                <label for="input-cogs" class="block text-xs font-semibold text-slate-700 mb-1.5">Product Cost (COGS) ($)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">$</span>
+                  <input
+                    id="input-cogs"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="12.00"
+                    value="12.00"
+                    class="w-full pl-7 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <span class="text-[11px] text-slate-400 mt-1 block">Manufacturing or supplier cost</span>
+              </div>
+
+              <!-- Shipping & Handling -->
+              <div>
+                <label for="input-shipping" class="block text-xs font-semibold text-slate-700 mb-1.5">Shipping &amp; Fulfillment ($)</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">$</span>
+                  <input
+                    id="input-shipping"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="4.50"
+                    value="4.50"
+                    class="w-full pl-7 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <span class="text-[11px] text-slate-400 mt-1 block">Cost to package &amp; deliver</span>
+              </div>
+
+              <!-- Payment Gateway -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Processing Fee</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="relative">
+                    <input
+                      id="input-fee-pct"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      placeholder="2.9"
+                      value="2.9"
+                      class="w-full pl-3 pr-6 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-mono">%</span>
+                  </div>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">+ $</span>
+                    <input
+                      id="input-fee-flat"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.30"
+                      value="0.30"
+                      class="w-full pl-7 pr-2 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <span class="text-[11px] text-slate-400 mt-1 block">Stripe / Shopify default: 2.9% + $0.30</span>
+              </div>
+            </div>
+
+            <!-- Campaign Scale Multiplier -->
+            <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <label for="input-orders" class="text-xs font-semibold text-slate-700 whitespace-nowrap">Monthly Projected Orders:</label>
+                <input
+                  id="input-orders"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="100"
+                  class="w-24 px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <button
+                id="btn-calculate"
+                type="button"
+                class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-sm rounded-xl shadow-xs transition-colors"
+              >
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+                <span>Simulate ROAS &amp; Margins</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Progressive Disclosure: Results Workspace -->
+      <section id="results-workspace" class="hidden mt-8 max-w-4xl mx-auto transition-all duration-300">
+        <!-- Top Summary Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Break Even ROAS -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Break-Even ROAS</span>
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="target" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1.5">
+              <span id="metric-be-roas" class="text-3xl font-bold font-mono text-slate-900 tabular-nums">0.00x</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Zero profit / loss threshold</p>
+          </div>
+
+          <!-- Max CPA -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Max Break-Even CPA</span>
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1.5">
+              <span id="metric-max-cpa" class="text-3xl font-bold font-mono text-slate-900 tabular-nums">$0.00</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Max ad spend per purchase</p>
+          </div>
+
+          <!-- Contribution Margin -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pre-Ad Margin %</span>
+              <div class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                <i data-lucide="percent" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1.5">
+              <span id="metric-margin-pct" class="text-3xl font-bold font-mono text-slate-900 tabular-nums">0.0%</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Profit before marketing</p>
+          </div>
+
+          <!-- Projected Net Profit -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Net Profit</span>
+              <div id="status-icon-container" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1.5">
+              <span id="metric-net-profit" class="text-3xl font-bold font-mono text-emerald-600 tabular-nums">$0.00</span>
+            </div>
+            <p id="metric-net-status" class="mt-1 text-xs font-medium text-emerald-600">Profitable Campaign</p>
+          </div>
+        </div>
+
+        <!-- Target ROAS Scenario Interactive Slider -->
+        <div class="mt-6 bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Target ROAS Live Simulator</h3>
+              <p class="text-xs text-slate-500">Drag slider to test how changing your ad return impacts monthly net income.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">Active Ad Return:</span>
+              <span id="slider-roas-display" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-mono font-bold text-sm rounded-lg border border-emerald-200">2.50x</span>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <input
+              id="roas-slider"
+              type="range"
+              min="0.5"
+              max="6.0"
+              step="0.05"
+              value="2.5"
+              class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+            />
+            <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1.5">
+              <span>0.5x (Severe Loss)</span>
+              <span id="slider-be-marker" class="text-slate-600 font-bold">Break-Even</span>
+              <span>4.0x</span>
+              <span>6.0x (Hyper Scaled)</span>
+            </div>
+          </div>
+
+          <!-- Financial Breakdown Table -->
+          <div class="mt-8 overflow-hidden rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">Financial Metric</th>
+                  <th class="px-4 py-3 text-right">Per Order Unit</th>
+                  <th class="px-4 py-3 text-right">Campaign Total (<span id="table-order-qty">100</span> Orders)</th>
+                  <th class="px-4 py-3 text-right">% of Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-mono">
+                <tr>
+                  <td class="px-4 py-2.5 font-sans font-medium text-slate-800">Gross Revenue</td>
+                  <td id="row-rev-unit" class="px-4 py-2.5 text-right tabular-nums">$49.99</td>
+                  <td id="row-rev-total" class="px-4 py-2.5 text-right tabular-nums text-slate-900 font-bold">$4,999.00</td>
+                  <td class="px-4 py-2.5 text-right tabular-nums text-slate-500">100.0%</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-sans font-medium text-slate-800">Product COGS</td>
+                  <td id="row-cogs-unit" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$12.00</td>
+                  <td id="row-cogs-total" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$1,200.00</td>
+                  <td id="row-cogs-pct" class="px-4 py-2.5 text-right tabular-nums text-slate-500">24.0%</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-sans font-medium text-slate-800">Shipping &amp; Fulfillment</td>
+                  <td id="row-ship-unit" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$4.50</td>
+                  <td id="row-ship-total" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$450.00</td>
+                  <td id="row-ship-pct" class="px-4 py-2.5 text-right tabular-nums text-slate-500">9.0%</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5 font-sans font-medium text-slate-800">Payment Gateway Fees</td>
+                  <td id="row-gateway-unit" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$1.75</td>
+                  <td id="row-gateway-total" class="px-4 py-2.5 text-right tabular-nums text-rose-600">-$175.00</td>
+                  <td id="row-gateway-pct" class="px-4 py-2.5 text-right tabular-nums text-slate-500">3.5%</td>
+                </tr>
+                <tr class="bg-slate-50/50">
+                  <td class="px-4 py-2.5 font-sans font-semibold text-slate-800">Target Ad Spend (CPA)</td>
+                  <td id="row-ads-unit" class="px-4 py-2.5 text-right tabular-nums text-blue-600">-$20.00</td>
+                  <td id="row-ads-total" class="px-4 py-2.5 text-right tabular-nums text-blue-600 font-semibold">-$2,000.00</td>
+                  <td id="row-ads-pct" class="px-4 py-2.5 text-right tabular-nums text-slate-500">40.0%</td>
+                </tr>
+                <tr class="bg-emerald-50/40 font-bold border-t border-slate-200">
+                  <td class="px-4 py-3 font-sans text-emerald-900">Net Profit / Loss</td>
+                  <td id="row-net-unit" class="px-4 py-3 text-right tabular-nums text-emerald-700">+$11.74</td>
+                  <td id="row-net-total" class="px-4 py-3 text-right tabular-nums text-emerald-700 text-sm">+$1,174.00</td>
+                  <td id="row-net-pct" class="px-4 py-3 text-right tabular-nums text-emerald-700">23.5%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Actions Toolbar -->
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center gap-2">
+              <button
+                id="btn-copy-summary"
+                type="button"
+                class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-xl transition-colors"
+              >
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span id="copy-summary-text">Copy Financial Breakdown</span>
+              </button>
+              <button
+                id="btn-download-csv"
+                type="button"
+                class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition-colors"
+              >
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Export CSV</span>
+              </button>
+            </div>
+            <button
+              id="btn-reset"
+              type="button"
+              class="text-xs text-slate-400 hover:text-slate-600 underline"
+            >
+              Reset to default
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sponsor Slot Container -->
+      <aside
+        id="sponsor-slot"
+        aria-label="Product Recommendation"
+        class="mt-12 max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
+      >
+        <div class="flex items-center gap-3.5">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">
+              Ecommerce Optimization
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-slate-800 mt-0.5">
+              Looking to boost conversion rates and lower acquisition costs?
+            </p>
+            <p class="text-xs text-slate-500">
+              High-converting storefronts achieve 35% higher average order value with optimized landing funnels.
+            </p>
+          </div>
+        </div>
+        <a
+          href="#how-to-use"
+          class="px-3.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0 self-end sm:self-center"
+        >
+          Learn more
+        </a>
+      </aside>
+
+      <!-- How to Use Documentation -->
+      <article id="how-to-use" class="mt-16 pt-10 border-t border-slate-200 max-w-3xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          How to Use the ROAS &amp; Break-Even Simulator
+        </h2>
+        <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+          Mastering unit economics protects your ecommerce business from unprofitable ad scaling. Follow these simple steps:
+        </p>
+
+        <div class="mt-6 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</div>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Enter True Product Costs</h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Fill in the retail price, supplier product cost (COGS), shipping fee, and your payment processor rate (typically 2.9% + $0.30 for Shopify Payments or Stripe).
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</div>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Review Your Break-Even Threshold</h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                The simulator automatically calculates your <strong>Break-Even ROAS</strong> and <strong>Max CPA</strong>. If your ads perform below this ROAS, each order loses money.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</div>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Simulate Target Ad Returns</h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Slide the <strong>Target ROAS</strong> bar to inspect your net profit margin and total campaign income across 100 or more orders. Use <strong>Copy Financial Breakdown</strong> to share reports with your team.
+              </p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Privacy Guarantee -->
+      <section id="privacy" class="mt-14 pt-10 border-t border-slate-200 max-w-3xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          Privacy &amp; Security Guarantee
+        </h2>
+        <div class="mt-4 p-4 rounded-xl bg-slate-100/70 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+          Your financial metrics, profit margins, and sales volumes are sensitive commercial data. This calculator executes 100% inside your browser's local JavaScript thread. No analytics, tracking pixels, or server endpoints are ever contacted.
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section id="faq" class="mt-14 pt-10 border-t border-slate-200 max-w-3xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 mb-6">
+          Frequently Asked Questions
+        </h2>
+
+        <div class="space-y-4">
+          <div class="p-4 bg-white border border-slate-200 rounded-xl">
+            <h3 class="text-sm font-semibold text-slate-900">What is Break-Even ROAS and how is it calculated?</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Break-Even ROAS represents the ad return where you make $0 profit after all costs. It is computed as <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">Sale Price / (Sale Price - COGS - Shipping - Gateway Fee)</code>.
+            </p>
+          </div>
+
+          <div class="p-4 bg-white border border-slate-200 rounded-xl">
+            <h3 class="text-sm font-semibold text-slate-900">What is the difference between ROAS and ROI?</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              ROAS (Return On Ad Spend) measures gross revenue divided by ad spend. ROI (Return On Investment) measures your final net profit divided by all combined business costs.
+            </p>
+          </div>
+
+          <div class="p-4 bg-white border border-slate-200 rounded-xl">
+            <h3 class="text-sm font-semibold text-slate-900">Why do small changes in ROAS drastically affect net profit?</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Because product costs and payment fees remain fixed per unit, every increase in ROAS goes straight to your bottom line, causing exponential changes in net cash flow.
+            </p>
+          </div>
+
+          <div class="p-4 bg-white border border-slate-200 rounded-xl">
+            <h3 class="text-sm font-semibold text-slate-900">Does this simulator work completely offline?</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Yes. All logic is self-contained in this single HTML file and runs fully offline without an internet connection.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500">
+      <div class="max-w-[1280px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p>GreenTools · 100% Client-Side ROAS &amp; Break-Even Simulator</p>
+        <div class="flex items-center gap-5">
+          <a href="#app" class="hover:text-slate-900 transition-colors">Back to top</a>
+          <a href="#how-to-use" class="hover:text-slate-900 transition-colors">How It Works</a>
+          <a href="#privacy" class="hover:text-slate-900 transition-colors">Privacy</a>
+          <a href="#faq" class="hover:text-slate-900 transition-colors">FAQ</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Client-Side Engine Script -->
+    <script>
+      (function () {
+        'use strict';
+
+        var inputPrice = document.getElementById('input-price');
+        var inputCogs = document.getElementById('input-cogs');
+        var inputShipping = document.getElementById('input-shipping');
+        var inputFeePct = document.getElementById('input-fee-pct');
+        var inputFeeFlat = document.getElementById('input-fee-flat');
+        var inputOrders = document.getElementById('input-orders');
+        var btnCalculate = document.getElementById('btn-calculate');
+        var resultsWorkspace = document.getElementById('results-workspace');
+
+        var metricBeRoas = document.getElementById('metric-be-roas');
+        var metricMaxCpa = document.getElementById('metric-max-cpa');
+        var metricMarginPct = document.getElementById('metric-margin-pct');
+        var metricNetProfit = document.getElementById('metric-net-profit');
+        var metricNetStatus = document.getElementById('metric-net-status');
+        var statusIconContainer = document.getElementById('status-icon-container');
+
+        var roasSlider = document.getElementById('roas-slider');
+        var sliderRoasDisplay = document.getElementById('slider-roas-display');
+        var sliderBeMarker = document.getElementById('slider-be-marker');
+
+        var tableOrderQty = document.getElementById('table-order-qty');
+        var rowRevUnit = document.getElementById('row-rev-unit');
+        var rowRevTotal = document.getElementById('row-rev-total');
+        var rowCogsUnit = document.getElementById('row-cogs-unit');
+        var rowCogsTotal = document.getElementById('row-cogs-total');
+        var rowCogsPct = document.getElementById('row-cogs-pct');
+        var rowShipUnit = document.getElementById('row-ship-unit');
+        var rowShipTotal = document.getElementById('row-ship-total');
+        var rowShipPct = document.getElementById('row-ship-pct');
+        var rowGatewayUnit = document.getElementById('row-gateway-unit');
+        var rowGatewayTotal = document.getElementById('row-gateway-total');
+        var rowGatewayPct = document.getElementById('row-gateway-pct');
+        var rowAdsUnit = document.getElementById('row-ads-unit');
+        var rowAdsTotal = document.getElementById('row-ads-total');
+        var rowAdsPct = document.getElementById('row-ads-pct');
+        var rowNetUnit = document.getElementById('row-net-unit');
+        var rowNetTotal = document.getElementById('row-net-total');
+        var rowNetPct = document.getElementById('row-net-pct');
+
+        var btnCopySummary = document.getElementById('btn-copy-summary');
+        var copySummaryText = document.getElementById('copy-summary-text');
+        var btnDownloadCsv = document.getElementById('btn-download-csv');
+        var btnSamplePreset = document.getElementById('btn-sample-preset');
+        var btnReset = document.getElementById('btn-reset');
+        var presetPills = document.querySelectorAll('.preset-pill');
+
+        function formatCurrency(num) {
+          return (num < 0 ? '-' : '') + '$' + Math.abs(num).toFixed(2);
+        }
+
+        function calculate() {
+          var price = parseFloat(inputPrice.value) || 0;
+          var cogs = parseFloat(inputCogs.value) || 0;
+          var ship = parseFloat(inputShipping.value) || 0;
+          var feePct = parseFloat(inputFeePct.value) || 0;
+          var feeFlat = parseFloat(inputFeeFlat.value) || 0;
+          var orders = Math.max(1, parseInt(inputOrders.value, 10) || 1);
+          var targetRoas = parseFloat(roasSlider.value) || 1.0;
+
+          if (price <= 0) return;
+
+          var gatewayFee = (price * (feePct / 100)) + feeFlat;
+          var preAdMargin = price - cogs - ship - gatewayFee;
+          var preAdMarginPct = price > 0 ? (preAdMargin / price) * 100 : 0;
+
+          // Break even ROAS = Price / Contribution Margin
+          var beRoas = preAdMargin > 0 ? price / preAdMargin : 999.9;
+          var maxCpa = Math.max(0, preAdMargin);
+
+          // Simulated Target CPA at chosen ROAS
+          var targetCpa = targetRoas > 0 ? price / targetRoas : price;
+          var netPerUnit = preAdMargin - targetCpa;
+          var netMarginPct = price > 0 ? (netPerUnit / price) * 100 : 0;
+          var totalNet = netPerUnit * orders;
+
+          // Update KPI metrics
+          metricBeRoas.textContent = beRoas >= 999 ? 'N/A' : beRoas.toFixed(2) + 'x';
+          metricMaxCpa.textContent = formatCurrency(maxCpa);
+          metricMarginPct.textContent = preAdMarginPct.toFixed(1) + '%';
+          metricNetProfit.textContent = formatCurrency(totalNet);
+
+          sliderRoasDisplay.textContent = targetRoas.toFixed(2) + 'x';
+          sliderBeMarker.textContent = beRoas < 6 ? 'Break-Even (' + beRoas.toFixed(2) + 'x)' : 'Break-Even (High)';
+
+          if (netPerUnit >= 0) {
+            metricNetProfit.className = 'text-3xl font-bold font-mono text-emerald-600 tabular-nums';
+            metricNetStatus.textContent = 'Profitable Campaign (+' + netMarginPct.toFixed(1) + '% net)';
+            metricNetStatus.className = 'mt-1 text-xs font-medium text-emerald-600';
+            statusIconContainer.className = 'w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center';
+          } else {
+            metricNetProfit.className = 'text-3xl font-bold font-mono text-rose-600 tabular-nums';
+            metricNetStatus.textContent = 'Unprofitable Campaign (' + netMarginPct.toFixed(1) + '% loss)';
+            metricNetStatus.className = 'mt-1 text-xs font-medium text-rose-600';
+            statusIconContainer.className = 'w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center';
+          }
+
+          // Update Table
+          tableOrderQty.textContent = orders.toLocaleString();
+          rowRevUnit.textContent = formatCurrency(price);
+          rowRevTotal.textContent = formatCurrency(price * orders);
+
+          rowCogsUnit.textContent = '-' + formatCurrency(cogs);
+          rowCogsTotal.textContent = '-' + formatCurrency(cogs * orders);
+          rowCogsPct.textContent = ((cogs / price) * 100).toFixed(1) + '%';
+
+          rowShipUnit.textContent = '-' + formatCurrency(ship);
+          rowShipTotal.textContent = '-' + formatCurrency(ship * orders);
+          rowShipPct.textContent = ((ship / price) * 100).toFixed(1) + '%';
+
+          rowGatewayUnit.textContent = '-' + formatCurrency(gatewayFee);
+          rowGatewayTotal.textContent = '-' + formatCurrency(gatewayFee * orders);
+          rowGatewayPct.textContent = ((gatewayFee / price) * 100).toFixed(1) + '%';
+
+          rowAdsUnit.textContent = '-' + formatCurrency(targetCpa);
+          rowAdsTotal.textContent = '-' + formatCurrency(targetCpa * orders);
+          rowAdsPct.textContent = ((targetCpa / price) * 100).toFixed(1) + '%';
+
+          rowNetUnit.textContent = (netPerUnit >= 0 ? '+' : '') + formatCurrency(netPerUnit);
+          rowNetTotal.textContent = (totalNet >= 0 ? '+' : '') + formatCurrency(totalNet);
+          rowNetPct.textContent = netMarginPct.toFixed(1) + '%';
+
+          var netRowClasses = netPerUnit >= 0 ? 'text-emerald-700' : 'text-rose-700';
+          rowNetUnit.className = 'px-4 py-3 text-right tabular-nums ' + netRowClasses;
+          rowNetTotal.className = 'px-4 py-3 text-right tabular-nums text-sm ' + netRowClasses;
+          rowNetPct.className = 'px-4 py-3 text-right tabular-nums ' + netRowClasses;
+
+          // Reveal workspace
+          resultsWorkspace.classList.remove('hidden');
+          if (window.lucide && window.lucide.createIcons) {
+            window.lucide.createIcons();
+          }
+        }
+
+        btnCalculate.addEventListener('click', calculate);
+        [inputPrice, inputCogs, inputShipping, inputFeePct, inputFeeFlat, inputOrders].forEach(function (el) {
+          el.addEventListener('input', calculate);
+        });
+        roasSlider.addEventListener('input', calculate);
+
+        presetPills.forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            inputPrice.value = pill.getAttribute('data-price');
+            inputCogs.value = pill.getAttribute('data-cogs');
+            inputShipping.value = pill.getAttribute('data-ship');
+            inputFeePct.value = pill.getAttribute('data-fee');
+            inputFeeFlat.value = pill.getAttribute('data-flat');
+            calculate();
+          });
+        });
+
+        btnSamplePreset.addEventListener('click', function () {
+          inputPrice.value = '49.99';
+          inputCogs.value = '12.00';
+          inputShipping.value = '4.50';
+          inputFeePct.value = '2.9';
+          inputFeeFlat.value = '0.30';
+          inputOrders.value = '150';
+          roasSlider.value = '2.6';
+          calculate();
+          resultsWorkspace.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        btnReset.addEventListener('click', function () {
+          inputPrice.value = '49.99';
+          inputCogs.value = '12.00';
+          inputShipping.value = '4.50';
+          inputFeePct.value = '2.9';
+          inputFeeFlat.value = '0.30';
+          inputOrders.value = '100';
+          roasSlider.value = '2.5';
+          calculate();
+        });
+
+        btnCopySummary.addEventListener('click', function () {
+          var price = parseFloat(inputPrice.value) || 0;
+          var orders = parseInt(inputOrders.value, 10) || 1;
+          var targetRoas = parseFloat(roasSlider.value) || 1.0;
+          var beRoas = metricBeRoas.textContent;
+          var maxCpa = metricMaxCpa.textContent;
+          var netProfit = metricNetProfit.textContent;
+          var netMargin = rowNetPct.textContent;
+
+          var summary = [
+            '=== ECOM ROAS & PROFIT BREAKDOWN ===',
+            'Product Price: ' + formatCurrency(price),
+            'Monthly Orders: ' + orders,
+            'Break-Even ROAS: ' + beRoas,
+            'Max Allowable CPA: ' + maxCpa,
+            'Target ROAS Simulated: ' + targetRoas.toFixed(2) + 'x',
+            'Net Profit (' + orders + ' orders): ' + netProfit + ' (' + netMargin + ')',
+            '====================================',
+            'Calculated 100% privately via GreenTools ROAS Simulator'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function () {
+            copySummaryText.textContent = 'Copied to Clipboard!';
+            setTimeout(function () {
+              copySummaryText.textContent = 'Copy Financial Breakdown';
+            }, 2000);
+          });
+        });
+
+        btnDownloadCsv.addEventListener('click', function () {
+          var csv = [
+            'Metric,Per Order,Campaign Total,Revenue Pct',
+            '"Gross Revenue",' + rowRevUnit.textContent + ',' + rowRevTotal.textContent + ',100.0%',
+            '"Product COGS",' + rowCogsUnit.textContent + ',' + rowCogsTotal.textContent + ',' + rowCogsPct.textContent,
+            '"Shipping & Fulfillment",' + rowShipUnit.textContent + ',' + rowShipTotal.textContent + ',' + rowShipPct.textContent,
+            '"Payment Gateway Fees",' + rowGatewayUnit.textContent + ',' + rowGatewayTotal.textContent + ',' + rowGatewayPct.textContent,
+            '"Target Ad Spend",' + rowAdsUnit.textContent + ',' + rowAdsTotal.textContent + ',' + rowAdsPct.textContent,
+            '"Net Profit",' + rowNetUnit.textContent + ',' + rowNetTotal.textContent + ',' + rowNetPct.textContent
+          ].join('\n');
+
+          var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'roas-breakdown.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+
+        // Initialize icons
+        if (window.lucide && window.lucide.createIcons) {
+          window.lucide.createIcons();
+        }
+      })();
+    </script>
+  </body>
+</html>
